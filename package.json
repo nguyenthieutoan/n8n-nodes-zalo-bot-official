@@ -1,0 +1,55 @@
+{
+  "name": "n8n-nodes-zalo-bot-official",
+  "version": "1.0.1",
+  "description": "n8n community node for Zalo Bot Platform",
+  "license": "MIT",
+  "author": {
+    "name": "Jay Nguyen (Nguyễn Thiệu Toàn)",
+    "email": "me@nguyenthieutoan.com",
+    "url": "https://nguyenthieutoan.com"
+  },
+  "keywords": [
+    "n8n-community-node-package"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nguyenthieutoan/n8n-nodes-zalo-bot-official.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nguyenthieutoan/n8n-nodes-zalo-bot-official/issues"
+  },
+  "homepage": "https://github.com/nguyenthieutoan/n8n-nodes-zalo-bot-official#readme",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc && gulp build:icons",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "lint": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "n8n": {
+    "nodes": [
+      "dist/nodes/ZaloBot/ZaloBot.node.js",
+      "dist/nodes/ZaloBotTrigger/ZaloBotTrigger.node.js"
+    ],
+    "credentials": [
+      "dist/credentials/ZaloBotApi.credentials.js"
+    ]
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "n8n-workflow": "^1.0.0"
+  },
+  "devDependencies": {
+    "@n8n/node-cli": "^0.23.0",
+    "@types/jest": "^29.0.0",
+    "@types/node": "^20.0.0",
+    "gulp": "^4.0.2",
+    "jest": "^29.0.0",
+    "n8n-workflow": "^1.0.0",
+    "ts-jest": "^29.0.0",
+    "typescript": "^5.0.0"
+  }
+}
