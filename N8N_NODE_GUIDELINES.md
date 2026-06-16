@@ -78,19 +78,20 @@ Upon receiving HTTP POST requests on the webhook endpoint, verify that the `x-bo
 
 When packaging and publishing new versions to the npm registry, execute the following actions sequentially:
 
-1. **Clean prior build:**
+1. **Verify Build and Type Checks:**
+   Ensure the code builds and lints cleanly:
    ```bash
-   Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue
+   npm run build; npm run lint
    ```
-2. **Compile sources and transfer static assets:**
+2. **Increment version and tag:**
+   Run the following to automatically increment version in `package.json` and generate a local Git tag:
    ```bash
-   npm run build
+   npm version <patch|minor|major>
    ```
-3. **Increment semantic version:**
-   Increase the version key inside `package.json`.
-4. **Publish to NPM:**
+3. **Trigger Automated CD Publish Pipeline:**
+   Push the commit and tags to the remote repository. The GitHub Action workflow will build and publish the node package to the npm registry with provenance:
    ```bash
-   npm publish --access public --otp=<OTP_CODE>
+   git push origin main --follow-tags
    ```
 
 ---
