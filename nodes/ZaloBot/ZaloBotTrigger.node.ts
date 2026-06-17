@@ -15,8 +15,8 @@ export class ZaloBotTrigger implements INodeType {
 		name: 'zaloBotTrigger',
 		icon: 'file:zalo-bot-icon.png',
 		group: ['trigger'],
-		version: [1, 1.1],
-		defaultVersion: 1.1,
+		version: [1, 2],
+		defaultVersion: 2,
 		subtitle: '=Events: {{$parameter["events"] ? $parameter["events"].join(", ") : "All"}}',
 		description: 'Trigger a workflow when a real-time message event is received from Zalo',
 		defaults: {
@@ -45,7 +45,7 @@ export class ZaloBotTrigger implements INodeType {
 				type: 'multiOptions',
 				displayOptions: {
 					show: {
-						'@version': [1.1],
+						'@version': [2],
 					},
 				},
 				options: [
@@ -163,8 +163,8 @@ export class ZaloBotTrigger implements INodeType {
 			};
 		}
 
-		// Event filtering for Version 1.1+
-		if (nodeVersion >= 1.1) {
+		// Event filtering for Version 2+
+		if (nodeVersion >= 2) {
 			const events = this.getNodeParameter('events', []) as string[];
 			const eventPayload = (bodyData.result || bodyData) as any;
 			const eventName = eventPayload.event_name as string;

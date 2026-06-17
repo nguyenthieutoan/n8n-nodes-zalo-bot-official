@@ -12,8 +12,8 @@ export class ZaloBot implements INodeType {
 		name: 'zaloBot',
 		icon: 'file:zalo-bot-icon.png',
 		group: ['transform'],
-		version: [1, 1.1],
-		defaultVersion: 1.1,
+		version: [1, 2],
+		defaultVersion: 2,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description: 'Send messages, photos, voice, and manage interactions on the Zalo Bot platform',
 		defaults: {
@@ -58,7 +58,7 @@ export class ZaloBot implements INodeType {
 				noDataExpression: true,
 				displayOptions: {
 					show: {
-						'@version': [1.1],
+						'@version': [2],
 					},
 				},
 				options: [
@@ -196,7 +196,7 @@ export class ZaloBot implements INodeType {
 				default: {},
 				displayOptions: {
 					show: {
-						'@version': [1.1],
+						'@version': [2],
 						resource: ['message'],
 						operation: ['sendMessage'],
 					},
@@ -254,7 +254,7 @@ export class ZaloBot implements INodeType {
 				default: {},
 				displayOptions: {
 					show: {
-						'@version': [1.1],
+						'@version': [2],
 						resource: ['message'],
 						operation: ['sendPhoto'],
 					},
