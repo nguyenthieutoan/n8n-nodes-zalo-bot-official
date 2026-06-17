@@ -34,6 +34,11 @@ export class ZaloBot implements INodeType {
 				name: 'resource',
 				type: 'options',
 				noDataExpression: true,
+				displayOptions: {
+					show: {
+						'@version': [1],
+					},
+				},
 				options: [
 					{
 						name: 'Message',
@@ -42,6 +47,28 @@ export class ZaloBot implements INodeType {
 					{
 						name: 'Bot Info',
 						value: 'botInfo',
+					},
+				],
+				default: 'message',
+			},
+			{
+				displayName: 'Resource',
+				name: 'resource',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						'@version': [1.1],
+					},
+				},
+				options: [
+					{
+						name: 'Message',
+						value: 'message',
+					},
+					{
+						name: 'Bot',
+						value: 'bot',
 					},
 				],
 				default: 'message',
@@ -99,7 +126,7 @@ export class ZaloBot implements INodeType {
 				noDataExpression: true,
 				displayOptions: {
 					show: {
-						resource: ['botInfo'],
+						resource: ['botInfo', 'bot'],
 					},
 				},
 				options: [
