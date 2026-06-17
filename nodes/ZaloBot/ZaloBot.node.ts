@@ -3,8 +3,8 @@ import {
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
-	NodeApiError,
 } from 'n8n-workflow';
+import { zaloBotApiRequest } from './GenericFunctions';
 
 export class ZaloBot implements INodeType {
 	description: INodeTypeDescription = {
@@ -12,11 +12,14 @@ export class ZaloBot implements INodeType {
 		name: 'zaloBot',
 		icon: 'file:zalo-bot-icon.png',
 		group: ['transform'],
-		version: 1,
+		version: [1, 1.1],
+		defaultVersion: 1.1,
+		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description: 'Send messages, photos, voice, and manage interactions on the Zalo Bot platform',
 		defaults: {
 			name: 'Zalo Bot',
 		},
+		usableAsTool: true,
 		inputs: ['main'],
 		outputs: ['main'],
 		credentials: [
@@ -59,26 +62,31 @@ export class ZaloBot implements INodeType {
 						name: 'Send Text Message',
 						value: 'sendMessage',
 						description: 'Send a plain text or rich text message',
+						action: 'Send a text message',
 					},
 					{
 						name: 'Send Photo',
 						value: 'sendPhoto',
 						description: 'Send a photo from a public URL',
+						action: 'Send a photo',
 					},
 					{
 						name: 'Send Sticker',
 						value: 'sendSticker',
 						description: 'Send an expressive sticker from Zalo',
+						action: 'Send a sticker',
 					},
 					{
 						name: 'Send Voice Message',
 						value: 'sendVoice',
 						description: 'Send an audio file (.aac format) to a 1-1 chat',
+						action: 'Send a voice message',
 					},
 					{
 						name: 'Send Chat Action',
 						value: 'sendChatAction',
 						description: 'Send a simulated chat action status (e.g. typing)',
+						action: 'Send a chat action',
 					},
 				],
 				default: 'sendMessage',
@@ -99,6 +107,7 @@ export class ZaloBot implements INodeType {
 						name: 'Get Info',
 						value: 'getMe',
 						description: 'Get basic details about the authenticated Bot',
+						action: 'Get bot info',
 					},
 				],
 				default: 'getMe',
@@ -131,6 +140,7 @@ export class ZaloBot implements INodeType {
 				default: '',
 				description: 'The content of the text message (maximum 2000 characters)',
 			},
+			// Version 1.0: Parse Mode is a root property
 			{
 				displayName: 'Parse Mode',
 				name: 'parseMode',
@@ -142,12 +152,42 @@ export class ZaloBot implements INodeType {
 				],
 				displayOptions: {
 					show: {
+						'@version': [1],
 						resource: ['message'],
 						operation: ['sendMessage'],
 					},
 				},
 				default: 'none',
 				description: 'Select formatting parser mode for rich text support',
+			},
+			// Version 1.1: parseMode inside additionalFields collection (Progressive Disclosure)
+			{
+				displayName: 'Additional Fields',
+				name: 'additionalFields',
+				type: 'collection',
+				placeholder: 'Add Field',
+				default: {},
+				displayOptions: {
+					show: {
+						'@version': [1.1],
+						resource: ['message'],
+						operation: ['sendMessage'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Parse Mode',
+						name: 'parseMode',
+						type: 'options',
+						options: [
+							{ name: 'None (Plain Text)', value: 'none' },
+							{ name: 'Markdown', value: 'markdown' },
+							{ name: 'HTML', value: 'html' },
+						],
+						default: 'none',
+						description: 'Select formatting parser mode for rich text support',
+					},
+				],
 			},
 			{
 				displayName: 'Photo URL',
@@ -163,18 +203,44 @@ export class ZaloBot implements INodeType {
 				default: '',
 				description: 'The public URL of the image file to send',
 			},
+			// Version 1.0: Caption is a root property
 			{
 				displayName: 'Caption',
 				name: 'caption',
 				type: 'string',
 				displayOptions: {
 					show: {
+						'@version': [1],
 						resource: ['message'],
 						operation: ['sendPhoto'],
 					},
 				},
 				default: '',
 				description: 'The description caption to display beneath the image',
+			},
+			// Version 1.1: caption inside additionalFields collection (Progressive Disclosure)
+			{
+				displayName: 'Additional Fields',
+				name: 'additionalFields',
+				type: 'collection',
+				placeholder: 'Add Field',
+				default: {},
+				displayOptions: {
+					show: {
+						'@version': [1.1],
+						resource: ['message'],
+						operation: ['sendPhoto'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Caption',
+						name: 'caption',
+						type: 'string',
+						default: '',
+						description: 'The description caption to display beneath the image',
+					},
+				],
 			},
 			{
 				displayName: 'Sticker ID',
@@ -227,9 +293,7 @@ export class ZaloBot implements INodeType {
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
-		const credentials = await this.getCredentials('zaloBotApi');
-		const botToken = credentials.botToken as string;
-		const baseUrl = 'https://bot-api.zaloplatforms.com';
+		const nodeVersion = this.getNode().typeVersion;
 
 		for (let i = 0; i < items.length; i++) {
 			try {
@@ -244,57 +308,61 @@ export class ZaloBot implements INodeType {
 					body.chat_id = chatId;
 
 					if (operation === 'sendMessage') {
-						endpoint = `/bot${botToken}/sendMessage`;
+						endpoint = '/sendMessage';
 						const text = this.getNodeParameter('text', i) as string;
-						const parseMode = this.getNodeParameter('parseMode', i) as string;
 						body.text = text;
+
+						let parseMode = 'none';
+						if (nodeVersion === 1) {
+							parseMode = this.getNodeParameter('parseMode', i) as string;
+						} else {
+							const additionalFields = this.getNodeParameter('additionalFields', i, {}) as any;
+							if (additionalFields.parseMode) {
+								parseMode = additionalFields.parseMode as string;
+							}
+						}
+
 						if (parseMode !== 'none') {
 							body.parse_mode = parseMode;
 						}
 					} else if (operation === 'sendPhoto') {
-						endpoint = `/bot${botToken}/sendPhoto`;
+						endpoint = '/sendPhoto';
 						const photoUrl = this.getNodeParameter('photoUrl', i) as string;
-						const caption = this.getNodeParameter('caption', i) as string;
 						body.photo = photoUrl;
+
+						let caption = '';
+						if (nodeVersion === 1) {
+							caption = this.getNodeParameter('caption', i) as string;
+						} else {
+							const additionalFields = this.getNodeParameter('additionalFields', i, {}) as any;
+							if (additionalFields.caption) {
+								caption = additionalFields.caption as string;
+							}
+						}
+
 						if (caption) {
 							body.caption = caption;
 						}
 					} else if (operation === 'sendSticker') {
-						endpoint = `/bot${botToken}/sendSticker`;
+						endpoint = '/sendSticker';
 						const stickerId = this.getNodeParameter('stickerId', i) as string;
 						body.sticker = stickerId;
 					} else if (operation === 'sendVoice') {
-						endpoint = `/bot${botToken}/sendVoice`;
+						endpoint = '/sendVoice';
 						const voiceUrl = this.getNodeParameter('voiceUrl', i) as string;
 						body.voice_url = voiceUrl;
 					} else if (operation === 'sendChatAction') {
-						endpoint = `/bot${botToken}/sendChatAction`;
+						endpoint = '/sendChatAction';
 						const action = this.getNodeParameter('action', i) as string;
 						body.action = action;
 					}
 				} else if (resource === 'botInfo') {
 					if (operation === 'getMe') {
-						endpoint = `/bot${botToken}/getMe`;
+						endpoint = '/getMe';
 					}
 				}
 
-				const options = {
-					method: 'POST' as const,
-					url: `${baseUrl}${endpoint}`,
-					body,
-					json: true,
-				};
-
-				let response: any;
-				try {
-					response = await this.helpers.httpRequest(options);
-				} catch (error) {
-					throw new NodeApiError(this.getNode(), error as any);
-				}
-
-				if (response && response.ok === false) {
-					throw new NodeApiError(this.getNode(), response);
-				}
+				const response = await zaloBotApiRequest.call(this, 'POST', endpoint, body);
 
 				returnData.push({
 					json: response.result || response,

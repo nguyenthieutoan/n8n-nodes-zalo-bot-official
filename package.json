@@ -32,7 +32,7 @@
   "n8n": {
     "nodes": [
       "dist/nodes/ZaloBot/ZaloBot.node.js",
-      "dist/nodes/ZaloBotTrigger/ZaloBotTrigger.node.js"
+      "dist/nodes/ZaloBot/ZaloBotTrigger.node.js"
     ],
     "credentials": [
       "dist/credentials/ZaloBotApi.credentials.js"

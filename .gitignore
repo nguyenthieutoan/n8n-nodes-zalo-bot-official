@@ -5,3 +5,7 @@ package-lock.json
 pnpm-lock.yaml
 dist
 coverage
+n8n Zalo Bot Guide.md
+N8N_NODE_GUIDELINES.md
+RELEASE.md
+.npmrc
