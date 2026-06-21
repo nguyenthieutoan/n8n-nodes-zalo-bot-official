@@ -1,11 +1,12 @@
-node_modules
+node_modules/
+dist/
+coverage/
 *.log
 .DS_Store
-package-lock.json
-pnpm-lock.yaml
-dist
-coverage
-n8n Zalo Bot Guide.md
-N8N_NODE_GUIDELINES.md
-RELEASE.md
 .npmrc
+
+# Ignore internal docs (not for git/npm)
+*.md
+!README.md
+!RELEASE.md
+!docs/**/*.md
