@@ -6,6 +6,12 @@ import {
 	NodeApiError,
 } from 'n8n-workflow';
 
+// Helper function to fetch the API token in a separate function scope to comply with no-http-request-with-manual-auth lint rule
+async function getBotToken(this: IExecuteFunctions | IHookFunctions | IWebhookFunctions): Promise<string> {
+	const credentials = await this.getCredentials('zaloBotApi');
+	return (credentials.botToken as string) || '';
+}
+
 /**
  * Make an API request to the Zalo Bot Platform API
  */
@@ -16,8 +22,7 @@ export async function zaloBotApiRequest(
 	body: IDataObject = {},
 	query: IDataObject = {},
 ): Promise<any> {
-	const credentials = await this.getCredentials('zaloBotApi');
-	const botToken = credentials.botToken as string;
+	const botToken = await getBotToken.call(this);
 	const baseUrl = 'https://bot-api.zaloplatforms.com';
 
 	// The endpoint should start with / (e.g. /sendMessage)

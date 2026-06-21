@@ -30,6 +30,7 @@
     "node": ">=22.22.0"
   },
   "n8n": {
+    "n8nNodesApiVersion": 1,
     "nodes": [
       "dist/nodes/ZaloBot/ZaloBot.node.js",
       "dist/nodes/ZaloBot/ZaloBotTrigger.node.js"
@@ -40,7 +41,7 @@
   },
   "dependencies": {},
   "peerDependencies": {
-    "n8n-workflow": "^1.0.0"
+    "n8n-workflow": "*"
   },
   "devDependencies": {
     "@n8n/node-cli": "^0.23.0",
