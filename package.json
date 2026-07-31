@@ -27,7 +27,7 @@
     "lint": "tsc --noEmit"
   },
   "engines": {
-    "node": ">=22.22.0"
+    "node": ">=18.0.0"
   },
   "n8n": {
     "n8nNodesApiVersion": 1,
